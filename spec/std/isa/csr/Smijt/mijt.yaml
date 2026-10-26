@@ -30,17 +30,12 @@ fields:
     sw_write(csr_value): |
       return csr_value.BASE;
     reset_value: 0
-  reserved:
-    location: 5-4
-    description: Reserved bits.
-    type: RO
-    reset_value: 0
   EHV:
     location: 3-2
     definedBy:
       extension:
         name: Smehv
-    long_name: Exception Hardware Vectoring enable
+    long_name: Exception Hardware Vectoring Enable
     description: |
       Controls synchronous exception hardware vectoring for M-mode.
 
@@ -48,15 +43,23 @@ fields:
       !===
       ! Encoding ! Meaning
 
-      ! 0b00 ! Synchronous exceptions use the standard `mtvec`-based dispatch.
+      ! 0b00 ! Synchronous exceptions use the standard mtvec-based dispatch.
       ! 0b01 ! Reserved.
       ! 0b10 ! Reserved.
-      ! 0b11 ! Synchronous exceptions are vectored from `mtvec.BASE` using 4-byte offset per exception cause.
+      ! 0b11 ! Synchronous exceptions are vectored from mtvec.BASE using a 4-byte offset per exception cause.
       !===
     type(): |
       return CsrFieldType::RWR;
     sw_write(csr_value): |
-      return csr_value.EHV;
+      if (csr_value.EHV == 0b00 || csr_value.EHV == 0b11) {
+        return csr_value.EHV;
+      }
+      return UNDEFINED_LEGAL_DETERMINISTIC;
+    reset_value: 0
+  reserved:
+    location: 5-4
+    description: Reserved bits.
+    type: RO
     reset_value: 0
   SHAMT:
     location: 1-0
